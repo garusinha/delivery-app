@@ -2,7 +2,7 @@ let myShops = [
   {
     id: 1,
     name: "Pol Athu Kade",
-    address: "Downtown St 10",
+    address: "Mihindu gama",
     lat: 6.349482,
     lng: 81.057259,
     status: "Pending",
@@ -10,17 +10,17 @@ let myShops = [
   {
     id: 2,
     name: "Damayanthi Ranmuduwewa",
-    address: "Main Road 55",
+    address: "Ranmuduwewa",
     lat: 6.354068,
     lng: 81.076485,
     status: "Pending",
   },
   {
     id: 3,
-    name: "Fashion Hub",
-    address: "Second Avenue",
-    lat: 6.9044,
-    lng: 79.854,
+    name: "Senu Stores",
+    address: "Ranmuduwewa",
+    lat: 6.415811,
+    lng: 81.088676,
     status: "Pending",
   },
 ];
@@ -139,3 +139,4 @@ window.onload = () => {
     () => render(),
   );
 };
+
