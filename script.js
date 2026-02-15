@@ -106,6 +106,13 @@ function render() {
   const container = document.getElementById("shop-list");
   if (!container) return; 
   container.innerHTML = "";
+  const routeBtn = document.createElement("button");
+  routeBtn.innerHTML = "🗺️ VIEW ALL PENDING STOPS";
+  routeBtn.className = "reset-btn";
+  routeBtn.style.background = "#34C759"; // Green background
+  routeBtn.style.marginBottom = "20px";
+  routeBtn.onclick = viewAllShopsOnMap;
+  container.appendChild(routeBtn);
 
   if (userPos.lat) {
     myShops.forEach(s => s.dist = getDistance(userPos.lat, userPos.lng, s.lat, s.lng));
@@ -180,4 +187,5 @@ window.onload = () => {
     () => render()
   );
 };
+
 
