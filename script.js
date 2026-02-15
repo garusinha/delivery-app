@@ -26,6 +26,24 @@ let myShops = [
 ];
 
 let userPos = { lat: null, lng: null };
+function resetDay() {
+    // 1. Ask for Password
+    const password = prompt("Enter Admin Password to Reset Day:");
+    
+    // 2. Check Password (Change '1234' to whatever you like)
+    if (password === "2705N") {
+        if (confirm("Password Correct. Clear all delivery statuses?")) {
+            myShops.forEach(shop => {
+                shop.status = "Pending";
+            });
+            saveData();
+            render();
+            alert("Success: App ready for a new day!");
+        }
+    } else {
+        alert("Wrong Password! Access Denied.");
+    }
+}
 
 function loadData() {
   const saved = localStorage.getItem("deliveryAppData");
@@ -127,6 +145,11 @@ function render() {
         `;
     container.appendChild(div);
   });
+  const bottomBtn = document.createElement("button");
+    bottomBtn.innerText = "🔄 Start Next Day (Admin Only)";
+    bottomBtn.className = "reset-btn";
+    bottomBtn.onclick = resetDay;
+    container.appendChild(bottomBtn);
 }
 
 window.onload = () => {
@@ -139,4 +162,5 @@ window.onload = () => {
     () => render(),
   );
 };
+
 
