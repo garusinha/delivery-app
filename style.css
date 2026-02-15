@@ -7,7 +7,17 @@
 .shop-info {
   flex: 1;
 }
+/* Animation for the View All Button */
+.reset-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0.9;
+}
 
+/* Ensure the emoji and text look good together */
+.reset-btn span {
+    font-size: 20px;
+}
 .title-row {
   display: flex;
   justify-content: space-between;
@@ -204,4 +214,5 @@ body {
     background: #ff3b30; /* Turns red when you click it */
     border-style: solid;
 }
+
 
