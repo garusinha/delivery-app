@@ -125,7 +125,7 @@ function render() {
                 ${
                   !isDone
                     ? `
-                <button class="map-arrow-btn" onclick="window.open(`https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}`)">
+                <button class="map-arrow-btn" onclick="window.open('http://maps.google.com/?daddr=${shop.lat},${shop.lng}')">
                     ↗
                 </button>`
                     : ""
