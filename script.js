@@ -12,7 +12,24 @@ function loadData() {
   const saved = localStorage.getItem("deliveryAppData");
   if (saved) { myShops = JSON.parse(saved); }
 }
+function viewAllShopsOnMap() {
+    // Filter to get only shops that aren't finished yet
+    const pendingShops = myShops.filter(s => s.status === "Pending");
+    
+    if (pendingShops.length === 0) {
+        return alert("No pending deliveries to show!");
+    }
 
+    // Create a Google Maps Search link with all coordinates
+    // Format: https://www.google.com/maps/dir/Current+Location/Lat1,Lng1/Lat2,Lng2/...
+    let mapUrl = "https://www.google.com/maps/dir/My+Location/";
+    
+    pendingShops.forEach(shop => {
+        mapUrl += `${shop.lat},${shop.lng}/`;
+    });
+
+    window.open(mapUrl, '_blank');
+}
 function saveData() {
   localStorage.setItem("deliveryAppData", JSON.stringify(myShops));
 }
@@ -163,3 +180,4 @@ window.onload = () => {
     () => render()
   );
 };
+
