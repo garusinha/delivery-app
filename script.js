@@ -67,6 +67,7 @@ function render() {
     const div = document.createElement("div");
     div.className = `shop-card ${isDone ? "completed" : ""}`;
 
+    // FIXED LINE BELOW: Added backticks and correct ${} syntax
     div.innerHTML = `
         <div class="card-main">
             <div class="shop-info">
@@ -79,7 +80,7 @@ function render() {
                     STATUS: ${shop.status}
                 </div>
             </div>
-            ${!isDone ? `<button class="map-arrow-btn" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}')">↗</button>` : ""}
+            ${!isDone ? `<button class="map-arrow-btn" onclick="window.open('https://www.google.com/maps?q=${shop.lat},${shop.lng}')">↗</button>` : ""}
         </div>
         ${!isDone ? `
         <div class="btn-group">
@@ -108,9 +109,3 @@ window.onload = () => {
     () => render()
   );
 };
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(err => console.log(err));
-  });
-}
