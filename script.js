@@ -5,6 +5,29 @@ let myShops = [
 ];
 
 let userPos = { lat: null, lng: null };
+function addShopManually() {
+    const password = prompt("Enter Admin Password to Add Shop:");
+    if (password !== "2705N") return alert("Wrong Password!");
+
+    const name = prompt("Enter Shop Name:");
+    const coords = prompt("Paste Coordinates from WhatsApp (lat, lng):"); 
+    // Reps often send: 6.3494, 81.0572
+    
+    if (name && coords) {
+        const parts = coords.split(",");
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+
+        if (isNaN(lat) || isNaN(lng)) return alert("Invalid coordinates format!");
+
+        const newId = Date.now(); // Unique ID based on time
+        myShops.push({ id: newId, name: name, address: "WhatsApp Added", lat: lat, lng: lng, status: "Pending" });
+        
+        saveData();
+        render();
+        alert("Shop added to your phone! Remember to update GitHub later for permanent storage.");
+    }
+}
 
 function resetDay() {
     const password = prompt("Enter Admin Password to Reset Day:");
@@ -97,6 +120,12 @@ function render() {
   bottomBtn.className = "reset-btn";
   bottomBtn.onclick = resetDay;
   container.appendChild(bottomBtn);
+  const manualBtn = document.createElement("button");
+manualBtn.innerText = "➕ Add Shop from WhatsApp";
+manualBtn.className = "reset-btn";
+manualBtn.style.border = "2px solid #007AFF"; // Blue border
+manualBtn.onclick = addShopManually;
+container.appendChild(manualBtn);
 }
 
 window.onload = () => {
@@ -109,3 +138,4 @@ window.onload = () => {
     () => render()
   );
 };
+
