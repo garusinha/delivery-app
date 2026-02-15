@@ -5,54 +5,62 @@ let myShops = [
 ];
 
 let userPos = { lat: null, lng: null };
+
+// --- 1. DATA MANAGEMENT ---
+
+function loadData() {
+  const saved = localStorage.getItem("deliveryAppData");
+  if (saved) { myShops = JSON.parse(saved); }
+}
+
+function saveData() {
+  localStorage.setItem("deliveryAppData", JSON.stringify(myShops));
+}
+
+// --- 2. ADMIN ACTIONS ---
+
 function addShopManually() {
     const password = prompt("Enter Admin Password to Add Shop:");
     if (password !== "2705N") return alert("Wrong Password!");
 
     const name = prompt("Enter Shop Name:");
     const coords = prompt("Paste Coordinates from WhatsApp (lat, lng):"); 
-    // Reps often send: 6.3494, 81.0572
     
     if (name && coords) {
         const parts = coords.split(",");
         const lat = parseFloat(parts[0].trim());
         const lng = parseFloat(parts[1].trim());
 
-        if (isNaN(lat) || isNaN(lng)) return alert("Invalid coordinates format!");
+        if (isNaN(lat) || isNaN(lng)) return alert("Invalid format! Use: lat, lng");
 
-        const newId = Date.now(); // Unique ID based on time
+        const newId = Date.now(); 
         myShops.push({ id: newId, name: name, address: "WhatsApp Added", lat: lat, lng: lng, status: "Pending" });
         
         saveData();
         render();
-        alert("Shop added to your phone! Remember to update GitHub later for permanent storage.");
+        alert("Shop added locally! Use 'Copy Data' later to update GitHub.");
     }
 }
 
 function resetDay() {
     const password = prompt("Enter Admin Password to Reset Day:");
     if (password === "2705N") {
-        if (confirm("Password Correct. Clear all delivery statuses?")) {
+        if (confirm("Clear all delivery statuses?")) {
             myShops.forEach(shop => { shop.status = "Pending"; });
             saveData();
             render();
-            alert("Success: App ready for a new day!");
         }
-    } else {
-        alert("Wrong Password! Access Denied.");
-    }
+    } else { alert("Wrong Password!"); }
 }
 
-function loadData() {
-  const saved = localStorage.getItem("deliveryAppData");
-  if (saved) {
-    myShops = JSON.parse(saved);
-  }
+function copyDataForGithub() {
+    const dataString = JSON.stringify(myShops, null, 2);
+    navigator.clipboard.writeText(dataString).then(() => {
+        alert("All shop data copied! You can now paste this into your GitHub script.js file.");
+    });
 }
 
-function saveData() {
-  localStorage.setItem("deliveryAppData", JSON.stringify(myShops));
-}
+// --- 3. LOGIC & MATH ---
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -65,7 +73,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 function updateStatus(id, newStatus) {
-  if (confirm(`Are you sure you want to mark this as ${newStatus}?`)) {
+  if (confirm(`Mark as ${newStatus}?`)) {
     const shop = myShops.find((s) => s.id === id);
     if (shop) {
       shop.status = newStatus;
@@ -74,6 +82,8 @@ function updateStatus(id, newStatus) {
     }
   }
 }
+
+// --- 4. UI RENDER ---
 
 function render() {
   const container = document.getElementById("shop-list");
@@ -90,7 +100,6 @@ function render() {
     const div = document.createElement("div");
     div.className = `shop-card ${isDone ? "completed" : ""}`;
 
-    // FIXED LINE BELOW: Added backticks and correct ${} syntax
     div.innerHTML = `
         <div class="card-main">
             <div class="shop-info">
@@ -115,18 +124,34 @@ function render() {
     container.appendChild(div);
   });
 
-  const bottomBtn = document.createElement("button");
-  bottomBtn.innerText = "🔄 Start Next Day (Admin Only)";
-  bottomBtn.className = "reset-btn";
-  bottomBtn.onclick = resetDay;
-  container.appendChild(bottomBtn);
+  // Bottom Buttons Group
+  const controls = document.createElement("div");
+  controls.style.padding = "20px";
+
   const manualBtn = document.createElement("button");
-manualBtn.innerText = "➕ Add Shop from WhatsApp";
-manualBtn.className = "reset-btn";
-manualBtn.style.border = "2px solid #007AFF"; // Blue border
-manualBtn.onclick = addShopManually;
-container.appendChild(manualBtn);
+  manualBtn.innerText = "➕ Add Shop from WhatsApp";
+  manualBtn.className = "reset-btn";
+  manualBtn.style.border = "2px solid #007AFF";
+  manualBtn.onclick = addShopManually;
+  controls.appendChild(manualBtn);
+
+  const resetBtn = document.createElement("button");
+  resetBtn.innerText = "🔄 Start Next Day";
+  resetBtn.className = "reset-btn";
+  resetBtn.onclick = resetDay;
+  controls.appendChild(resetBtn);
+
+  const copyBtn = document.createElement("button");
+  copyBtn.innerText = "📋 Copy All Data for GitHub";
+  copyBtn.className = "reset-btn";
+  copyBtn.style.border = "1px dashed #fff";
+  copyBtn.onclick = copyDataForGithub;
+  controls.appendChild(copyBtn);
+
+  container.appendChild(controls);
 }
+
+// --- 5. INITIALIZATION ---
 
 window.onload = () => {
   loadData();
@@ -138,4 +163,3 @@ window.onload = () => {
     () => render()
   );
 };
-
