@@ -12,17 +12,20 @@ function loadData() {
   const saved = localStorage.getItem("deliveryAppData");
   if (saved) { myShops = JSON.parse(saved); }
 }
-function viewAllShopsOnMap() {
-    // Filter to get only shops that aren't finished yet
-    const pendingShops = myShops.filter(s => s.status === "Pending");
-    
-    if (pendingShops.length === 0) {
-        return alert("No pending deliveries to show!");
-    }
 
-    // Create a Google Maps Search link with all coordinates
-    // Format: https://www.google.com/maps/dir/Current+Location/Lat1,Lng1/Lat2,Lng2/...
-    let mapUrl = "https://www.google.com/maps/dir/My+Location/";
+function saveData() {
+  localStorage.setItem("deliveryAppData", JSON.stringify(myShops));
+}
+
+// --- 2. MAP LOGIC ---
+
+function viewAllShopsOnMap() {
+    const pendingShops = myShops.filter(s => s.status === "Pending");
+    if (pendingShops.length === 0) return alert("No pending deliveries!");
+
+    // This creates a link showing all pins at once
+    let mapUrl = "https://www.google.com/maps/dir/";
+    if(userPos.lat) mapUrl += `${userPos.lat},${userPos.lng}/`; // Start from you
     
     pendingShops.forEach(shop => {
         mapUrl += `${shop.lat},${shop.lng}/`;
@@ -30,54 +33,42 @@ function viewAllShopsOnMap() {
 
     window.open(mapUrl, '_blank');
 }
-function saveData() {
-  localStorage.setItem("deliveryAppData", JSON.stringify(myShops));
-}
 
-// --- 2. ADMIN ACTIONS ---
+// --- 3. ADMIN ACTIONS ---
 
 function addShopManually() {
-    const password = prompt("Enter Admin Password to Add Shop:");
+    const password = prompt("Enter Admin Password:");
     if (password !== "2705N") return alert("Wrong Password!");
 
     const name = prompt("Enter Shop Name:");
-    const coords = prompt("Paste Coordinates from WhatsApp (lat, lng):"); 
+    const coords = prompt("Paste Coordinates (lat, lng):"); 
     
     if (name && coords) {
         const parts = coords.split(",");
         const lat = parseFloat(parts[0].trim());
         const lng = parseFloat(parts[1].trim());
 
-        if (isNaN(lat) || isNaN(lng)) return alert("Invalid format! Use: lat, lng");
+        if (isNaN(lat) || isNaN(lng)) return alert("Invalid format!");
 
-        const newId = Date.now(); 
-        myShops.push({ id: newId, name: name, address: "WhatsApp Added", lat: lat, lng: lng, status: "Pending" });
-        
+        myShops.push({ id: Date.now(), name: name, address: "WhatsApp Added", lat: lat, lng: lng, status: "Pending" });
         saveData();
         render();
-        alert("Shop added locally! Use 'Copy Data' later to update GitHub.");
     }
 }
 
 function resetDay() {
-    const password = prompt("Enter Admin Password to Reset Day:");
-    if (password === "2705N") {
-        if (confirm("Clear all delivery statuses?")) {
-            myShops.forEach(shop => { shop.status = "Pending"; });
-            saveData();
-            render();
-        }
-    } else { alert("Wrong Password!"); }
+    if (prompt("Password:") === "2705N") {
+        myShops.forEach(shop => shop.status = "Pending");
+        saveData();
+        render();
+    }
 }
 
 function copyDataForGithub() {
-    const dataString = JSON.stringify(myShops, null, 2);
-    navigator.clipboard.writeText(dataString).then(() => {
-        alert("All shop data copied! You can now paste this into your GitHub script.js file.");
-    });
+    navigator.clipboard.writeText(JSON.stringify(myShops, null, 2)).then(() => alert("Data Copied!"));
 }
 
-// --- 3. LOGIC & MATH ---
+// --- 4. MATH ---
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -100,16 +91,18 @@ function updateStatus(id, newStatus) {
   }
 }
 
-// --- 4. UI RENDER ---
+// --- 5. UI RENDER ---
 
 function render() {
   const container = document.getElementById("shop-list");
   if (!container) return; 
   container.innerHTML = "";
+
+  // TOP BUTTON: View All
   const routeBtn = document.createElement("button");
   routeBtn.innerHTML = "🗺️ VIEW ALL PENDING STOPS";
   routeBtn.className = "reset-btn";
-  routeBtn.style.background = "#34C759"; // Green background
+  routeBtn.style.background = "#34C759";
   routeBtn.style.marginBottom = "20px";
   routeBtn.onclick = viewAllShopsOnMap;
   container.appendChild(routeBtn);
@@ -148,7 +141,6 @@ function render() {
     container.appendChild(div);
   });
 
-  // Bottom Buttons Group
   const controls = document.createElement("div");
   controls.style.padding = "20px";
 
@@ -175,8 +167,6 @@ function render() {
   container.appendChild(controls);
 }
 
-// --- 5. INITIALIZATION ---
-
 window.onload = () => {
   loadData();
   navigator.geolocation.getCurrentPosition(
@@ -187,5 +177,3 @@ window.onload = () => {
     () => render()
   );
 };
-
-
