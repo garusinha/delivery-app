@@ -1,5 +1,34 @@
 let myShops = [
-  { id: 1, name: "Shop 1", address: "Wijedasa St", lat: 6.342416, lng: 81.011681, status: "Pending" }
+  // --- Shops from First File (1.xlsx) ---
+  { "id": 100, "name": "Umayanga St", "address": "Added from List", "lat": 6.338066, "lng": 81.005943, "status": "Pending" },
+  { "id": 101, "name": "Bulath Kade", "address": "Added from List", "lat": 6.340764, "lng": 81.021153, "status": "Pending" },
+  { "id": 102, "name": "Samarasinha St", "address": "Added from List", "lat": 6.352201, "lng": 81.030211, "status": "Pending" },
+  { "id": 103, "name": "Chathuranga St", "address": "Added from List", "lat": 6.393334, "lng": 81.030759, "status": "Pending" },
+  { "id": 104, "name": "Elagawa Elawalu Migahajadura", "address": "Added from List", "lat": 6.356427, "lng": 81.033858, "status": "Pending" },
+  { "id": 105, "name": "Athula", "address": "Added from List", "lat": 6.359589, "lng": 81.034074, "status": "Pending" },
+  { "id": 106, "name": "Didula St", "address": "Added from List", "lat": 6.369619, "lng": 81.034854, "status": "Pending" },
+  { "id": 107, "name": "Mahinda St", "address": "Added from List", "lat": 6.382172, "lng": 81.030929, "status": "Pending" },
+  { "id": 108, "name": "senali st", "address": "Added from List", "lat": 6.392884, "lng": 81.029185, "status": "Pending" },
+  { "id": 109, "name": "Pathika", "address": "Added from List", "lat": 6.419595, "lng": 81.023324, "status": "Pending" },
+  { "id": 110, "name": "Bagya St", "address": "Added from List", "lat": 6.430601, "lng": 81.016185, "status": "Pending" },
+  { "id": 111, "name": "Randila Wale kade Kumaragama", "address": "Added from List", "lat": 6.430216, "lng": 81.014711, "status": "Pending" },
+  { "id": 112, "name": "kawishan St", "address": "Added from List", "lat": 6.429519, "lng": 81.012225, "status": "Pending" },
+  { "id": 113, "name": "Rukshan St Kumaragama", "address": "Added from List", "lat": 6.427643, "lng": 81.007161, "status": "Pending" },
+  { "id": 114, "name": "Anupa Bufe", "address": "Added from List", "lat": 6.364221, "lng": 80.96288, "status": "Pending" },
+  { "id": 115, "name": "Ajith St", "address": "Added from List", "lat": 6.366562, "lng": 80.971577, "status": "Pending" },
+  { "id": 116, "name": "Jayamanthi St", "address": "Added from List", "lat": 6.366341, "lng": 80.971382, "status": "Pending" },
+  { "id": 117, "name": "sayas St", "address": "Added from List", "lat": 6.350903, "lng": 80.964787, "status": "Pending" },
+  { "id": 118, "name": "Sudath Weladasala", "address": "Added from List", "lat": 6.348447, "lng": 80.971, "status": "Pending" },
+  { "id": 119, "name": "parakrma St", "address": "Added from List", "lat": 6.347989, "lng": 80.971418, "status": "Pending" },
+  { "id": 120, "name": "Premasiri", "address": "Added from List", "lat": 6.317672, "lng": 80.970448, "status": "Pending" },
+
+  // --- New Shops from Second File (rohan routes 6.xlsx) ---
+  { "id": 201, "name": "GNS", "address": "Added from List 2", "lat": 6.524582, "lng": 81.003571, "status": "Pending" },
+  { "id": 202, "name": "Prabath St", "address": "Added from List 2", "lat": 6.534878, "lng": 80.959015, "status": "Pending" },
+  { "id": 203, "name": "Suranga St", "address": "Added from List 2", "lat": 6.541237, "lng": 80.948491, "status": "Pending" },
+  { "id": 204, "name": "Wasana St", "address": "Added from List 2", "lat": 6.541457, "lng": 80.94916, "status": "Pending" },
+  { "id": 205, "name": "Tissa St", "address": "Added from List 2", "lat": 6.540475, "lng": 80.948846, "status": "Pending" },
+  { "id": 206, "name": "Shanika St", "address": "Added from List 2", "lat": 6.46148, "lng": 81.018992, "status": "Pending" }
 ];
 
 let userPos = { lat: null, lng: null };
@@ -7,7 +36,13 @@ let userPos = { lat: null, lng: null };
 // --- 1. DATA MANAGEMENT ---
 function loadData() {
   const saved = localStorage.getItem("deliveryAppData");
-  if (saved) { myShops = JSON.parse(saved); }
+  if (saved) { 
+      const localData = JSON.parse(saved);
+      myShops = myShops.map(permanentShop => {
+          const savedVersion = localData.find(s => s.lat === permanentShop.lat && s.lng === permanentShop.lng);
+          return savedVersion ? savedVersion : permanentShop;
+      });
+  }
 }
 
 function saveData() {
@@ -37,40 +72,9 @@ function viewAllShopsOnMap() {
     window.open(mapUrl, '_blank');
 }
 
-// --- 3. BULK IMPORT & ACTIONS ---
-function importShops() {
-    const data = prompt("Paste all Google Maps links here (separated by spaces or new lines):");
-    if (!data) return;
-
-    // Use Regex to find all lat/lng pairs in the text
-    const regex = /q=([-\d.]+),([-\d.]+)/g;
-    let match;
-    let count = 0;
-    const startIndex = myShops.length + 1;
-
-    while ((match = regex.exec(data)) !== null) {
-        myShops.push({
-            id: Date.now() + Math.random(),
-            name: `Shop ${startIndex + count}`,
-            address: "Bulk Imported",
-            lat: parseFloat(match[1]),
-            lng: parseFloat(match[2]),
-            status: "Pending"
-        });
-        count++;
-    }
-
-    if (count > 0) {
-        saveData();
-        render();
-        alert(`Successfully added ${count} shops!`);
-    } else {
-        alert("No coordinates found. Make sure you paste the full links!");
-    }
-}
-
+// --- 3. ACTIONS ---
 function deleteShop(id) {
-    if (confirm("Delete this shop from your list?")) {
+    if (confirm("Delete this shop?")) {
         myShops = myShops.filter(s => s.id !== id);
         saveData();
         render();
@@ -111,15 +115,16 @@ function render() {
   if (!container) return; 
   container.innerHTML = "";
 
-  // View All Button
   const pendingCount = myShops.filter(s => s.status === "Pending").length;
   const routeBtn = document.createElement("button");
   routeBtn.innerHTML = `<span>📍</span> VIEW OPTIMIZED ROUTE (${pendingCount})`;
+  
   Object.assign(routeBtn.style, {
       background: "linear-gradient(135deg, #34C759 0%, #28a745 100%)",
-      color: "white", border: "none", borderRadius: "12px", padding: "18px",
-      fontSize: "16px", fontWeight: "bold", boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-      marginBottom: "20px", width: "100%", cursor: "pointer"
+      color: "white", border: "none", borderRadius: "15px", padding: "20px",
+      fontSize: "16px", fontWeight: "bold", boxShadow: "0 6px 20px rgba(52, 199, 89, 0.4)",
+      marginBottom: "25px", width: "100%", cursor: "pointer", display: "flex",
+      alignItems: "center", justifyContent: "center", gap: "10px"
   });
   routeBtn.onclick = viewAllShopsOnMap;
   container.appendChild(routeBtn);
@@ -133,54 +138,55 @@ function render() {
     const isDone = shop.status !== "Pending";
     const div = document.createElement("div");
     div.className = `shop-card ${isDone ? "completed" : ""}`;
+    div.style.borderBottom = "1px solid #eee";
+    div.style.padding = "15px 0";
 
     div.innerHTML = `
-        <div class="card-main" style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="shop-info">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
                 <h3 style="margin:0;">#${index + 1} - ${shop.name}</h3>
-                <p style="font-size:12px; color:#666; margin:4px 0;">${shop.dist ? shop.dist.toFixed(1) + ' km away' : 'Calculating...'}</p>
+                <p style="margin:5px 0; color:#666; font-size:14px;">${shop.address}</p>
+                <p style="margin:0; font-size:12px; font-weight:bold; color:${isDone ? "#34C759" : "#999"}">
+                    ${isDone ? '✓ ' + shop.status : '● PENDING'}
+                </p>
             </div>
-            <div style="display:flex; gap:10px;">
-                <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}')" style="background:#eee; border:none; padding:10px; border-radius:8px;">↗</button>
-                <button onclick="deleteShop(${shop.id})" style="background:#ff3b30; color:white; border:none; padding:10px; border-radius:8px;">🗑️</button>
+            <div style="display:flex; gap:8px;">
+                <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}')" 
+                        style="background:#007AFF; color:white; border:none; padding:10px; border-radius:8px;">🗺️</button>
+                <button onclick="deleteShop(${shop.id})" 
+                        style="background:#FF3B30; color:white; border:none; padding:10px; border-radius:8px;">🗑️</button>
             </div>
         </div>
         ${!isDone ? `
-        <div class="btn-group" style="display:flex; gap:5px; margin-top:10px;">
-            <button class="action-btn" style="flex:1; background:#34C759; color:white;" onclick="updateStatus(${shop.id}, 'Delivered')">Delivered</button>
-            <button class="action-btn" style="flex:1; background:#ff9500; color:white;" onclick="updateStatus(${shop.id}, 'Closed')">Closed</button>
-        </div>` : `<div style="margin-top:10px; color:#34C759; font-weight:bold;">✓ ${shop.status}</div>`}
+        <div style="display:flex; gap:10px; margin-top:12px;">
+            <button onclick="updateStatus(${shop.id}, 'Delivered')" style="flex:1; padding:10px; background:#34C759; color:white; border:none; border-radius:8px; font-weight:bold;">Delivered</button>
+            <button onclick="updateStatus(${shop.id}, 'Closed')" style="flex:1; padding:10px; background:#FF9500; color:white; border:none; border-radius:8px; font-weight:bold;">Closed</button>
+        </div>` : ""}
     `;
     container.appendChild(div);
   });
 
-  // Footer Actions
   const footer = document.createElement("div");
-  footer.style.padding = "20px 0";
-
-  const bulkBtn = document.createElement("button");
-  bulkBtn.innerText = "📥 Bulk Import Links";
-  bulkBtn.className = "reset-btn";
-  bulkBtn.style.background = "#007AFF";
-  bulkBtn.style.color = "white";
-  bulkBtn.onclick = importShops;
-  footer.appendChild(bulkBtn);
-
+  footer.style.marginTop = "30px";
+  
   const resetBtn = document.createElement("button");
-  resetBtn.innerText = "🔄 Reset Day";
+  resetBtn.innerText = "🔄 RESET FOR NEW DAY";
   resetBtn.className = "reset-btn";
-  resetBtn.style.marginTop = "10px";
+  resetBtn.style.width = "100%";
   resetBtn.onclick = resetDay;
   footer.appendChild(resetBtn);
-
+  
   container.appendChild(footer);
 }
 
 window.onload = () => {
   loadData();
-  navigator.geolocation.getCurrentPosition((p) => {
+  navigator.geolocation.getCurrentPosition(
+    (p) => {
       userPos = { lat: p.coords.latitude, lng: p.coords.longitude };
       render();
-    }, () => render()
+    },
+    () => render(),
+    { enableHighAccuracy: true }
   );
 };
