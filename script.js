@@ -22,7 +22,7 @@ let myShops = [
   { "id": 119, "name": "parakrma St", "address": "Added from List", "lat": 6.347989, "lng": 80.971418, "status": "Pending" },
   { "id": 120, "name": "Premasiri", "address": "Added from List", "lat": 6.317672, "lng": 80.970448, "status": "Pending" },
 
-  // --- New Shops from Second File (rohan routes 6.xlsx) ---
+  // --- Shops from Second File (rohan routes 6.xlsx) ---
   { "id": 201, "name": "GNS", "address": "Added from List 2", "lat": 6.524582, "lng": 81.003571, "status": "Pending" },
   { "id": 202, "name": "Prabath St", "address": "Added from List 2", "lat": 6.534878, "lng": 80.959015, "status": "Pending" },
   { "id": 203, "name": "Suranga St", "address": "Added from List 2", "lat": 6.541237, "lng": 80.948491, "status": "Pending" },
@@ -74,7 +74,7 @@ function viewAllShopsOnMap() {
 
 // --- 3. ACTIONS ---
 function deleteShop(id) {
-    if (confirm("Delete this shop?")) {
+    if (confirm("⚠️ Are you sure you want to DELETE this shop from the list?")) {
         myShops = myShops.filter(s => s.id !== id);
         saveData();
         render();
@@ -82,10 +82,14 @@ function deleteShop(id) {
 }
 
 function resetDay() {
-    if (prompt("Password:") === "2705N") {
-        myShops.forEach(shop => shop.status = "Pending");
-        saveData();
-        render();
+    if (prompt("Enter Admin Password to Reset:") === "2705N") {
+        if (confirm("This will set ALL shops back to 'Pending'. Continue?")) {
+            myShops.forEach(shop => shop.status = "Pending");
+            saveData();
+            render();
+        }
+    } else {
+        alert("Wrong Password!");
     }
 }
 
@@ -100,12 +104,15 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
+// UPDATED: Added confirmation before updating status
 function updateStatus(id, newStatus) {
   const shop = myShops.find((s) => s.id === id);
   if (shop) {
-    shop.status = newStatus;
-    saveData();
-    render();
+    if (confirm(`Mark "${shop.name}" as ${newStatus.toUpperCase()}?`)) {
+      shop.status = newStatus;
+      saveData();
+      render();
+    }
   }
 }
 
@@ -122,7 +129,7 @@ function render() {
   Object.assign(routeBtn.style, {
       background: "linear-gradient(135deg, #34C759 0%, #28a745 100%)",
       color: "white", border: "none", borderRadius: "15px", padding: "20px",
-      fontSize: "16px", fontWeight: "bold", boxShadow: "0 6px 20px rgba(52, 199, 89, 0.4)",
+      fontSize: "18px", fontWeight: "bold", boxShadow: "0 6px 20px rgba(52, 199, 89, 0.4)",
       marginBottom: "25px", width: "100%", cursor: "pointer", display: "flex",
       alignItems: "center", justifyContent: "center", gap: "10px"
   });
@@ -138,41 +145,49 @@ function render() {
     const isDone = shop.status !== "Pending";
     const div = document.createElement("div");
     div.className = `shop-card ${isDone ? "completed" : ""}`;
-    div.style.borderBottom = "1px solid #eee";
-    div.style.padding = "15px 0";
+    div.style.backgroundColor = isDone ? "#f9f9f9" : "white";
+    div.style.borderBottom = "2px solid #eee";
+    div.style.padding = "20px 0";
 
     div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-                <h3 style="margin:0;">#${index + 1} - ${shop.name}</h3>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding: 0 10px;">
+            <div style="flex: 1;">
+                <h3 style="margin:0; font-size: 18px;">#${index + 1} - ${shop.name}</h3>
                 <p style="margin:5px 0; color:#666; font-size:14px;">${shop.address}</p>
-                <p style="margin:0; font-size:12px; font-weight:bold; color:${isDone ? "#34C759" : "#999"}">
-                    ${isDone ? '✓ ' + shop.status : '● PENDING'}
-                </p>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                   <span style="font-size: 12px; font-weight: bold; color: #007AFF;">${shop.dist ? shop.dist.toFixed(1) + ' km' : ''}</span>
+                   <span style="font-size:12px; font-weight:bold; color:${isDone ? "#34C759" : "#FF9500"}">
+                      ${isDone ? '✓ ' + shop.status : '● PENDING'}
+                   </span>
+                </div>
             </div>
-            <div style="display:flex; gap:8px;">
+            <div style="display:flex; gap:12px;">
                 <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${shop.lat},${shop.lng}')" 
-                        style="background:#007AFF; color:white; border:none; padding:10px; border-radius:8px;">🗺️</button>
+                        style="background:#007AFF; color:white; border:none; padding:12px; border-radius:10px; font-size: 18px;">🗺️</button>
                 <button onclick="deleteShop(${shop.id})" 
-                        style="background:#FF3B30; color:white; border:none; padding:10px; border-radius:8px;">🗑️</button>
+                        style="background:#FF3B30; color:white; border:none; padding:12px; border-radius:10px; font-size: 18px;">🗑️</button>
             </div>
         </div>
         ${!isDone ? `
-        <div style="display:flex; gap:10px; margin-top:12px;">
-            <button onclick="updateStatus(${shop.id}, 'Delivered')" style="flex:1; padding:10px; background:#34C759; color:white; border:none; border-radius:8px; font-weight:bold;">Delivered</button>
-            <button onclick="updateStatus(${shop.id}, 'Closed')" style="flex:1; padding:10px; background:#FF9500; color:white; border:none; border-radius:8px; font-weight:bold;">Closed</button>
+        <div style="display:flex; gap:12px; margin-top:15px; padding: 0 10px;">
+            <button onclick="updateStatus(${shop.id}, 'Delivered')" style="flex:1; padding:15px; background:#34C759; color:white; border:none; border-radius:10px; font-weight:bold; font-size: 16px;">Delivered</button>
+            <button onclick="updateStatus(${shop.id}, 'Closed')" style="flex:1; padding:15px; background:#FF9500; color:white; border:none; border-radius:10px; font-weight:bold; font-size: 16px;">Closed</button>
         </div>` : ""}
     `;
     container.appendChild(div);
   });
 
   const footer = document.createElement("div");
-  footer.style.marginTop = "30px";
+  footer.style.marginTop = "40px";
+  footer.style.padding = "0 10px 50px 10px";
   
   const resetBtn = document.createElement("button");
-  resetBtn.innerText = "🔄 RESET FOR NEW DAY";
+  resetBtn.innerText = "🔄 RESET ALL FOR NEW DAY";
   resetBtn.className = "reset-btn";
-  resetBtn.style.width = "100%";
+  Object.assign(resetBtn.style, {
+      width: "100%", padding: "15px", borderRadius: "10px", border: "1px solid #ccc",
+      background: "#eee", fontWeight: "bold", color: "#333"
+  });
   resetBtn.onclick = resetDay;
   footer.appendChild(resetBtn);
   
